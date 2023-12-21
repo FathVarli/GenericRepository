@@ -1,6 +1,7 @@
 using GenericRepository.AppSettings;
 using GenericRepository.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace GenericRepository.Infrastructure.Context
 {
@@ -13,11 +14,16 @@ namespace GenericRepository.Infrastructure.Context
             _appSetting = appSetting;
         }
 
+        public DbSet<User> Users { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder.UseNpgsql(_appSetting.PostgresqlSettings.ConnectionString));
-        }
+            optionsBuilder
+                .UseNpgsql(_appSetting.PostgresqlSettings.ConnectionString)
+                .UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
+                .EnableSensitiveDataLogging();
 
-        public DbSet<User> Users { get; set; }
+            base.OnConfiguring(optionsBuilder);
+        }
     }
 }

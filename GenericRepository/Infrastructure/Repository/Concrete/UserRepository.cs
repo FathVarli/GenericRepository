@@ -5,7 +5,7 @@ using GenericRepository.Infrastructure.Repository.Base;
 
 namespace GenericRepository.Infrastructure.Repository.Concrete
 {
-    public class UserRepository : GenericRepository<User,int> , IUserRepository
+    public class UserRepository : GenericRepository<User, int>, IUserRepository
     {
         public UserRepository(ProjectDbContext context) : base(context)
         {
