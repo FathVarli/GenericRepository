@@ -1,8 +1,8 @@
 using GenericRepository.Dto.Abstract;
 
-namespace GenericRepository.Dto
+namespace GenericRepository.Dto.User.Response
 {
-    public class UserDto : IDto
+    public class UserResponseDto : IDto
     {
         public int Id { get; set; }
         public string Name { get; set; }

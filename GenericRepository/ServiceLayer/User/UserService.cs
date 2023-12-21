@@ -1,6 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GenericRepository.Dto;
+using GenericRepository.Dto.User.Request;
+using GenericRepository.Dto.User.Response;
+using GenericRepository.Helper.Extensions;
 using GenericRepository.Helper.Results.Base;
 using GenericRepository.Helper.Results.DataResults;
 using GenericRepository.Helper.Results.Results;
@@ -19,17 +24,16 @@ namespace GenericRepository.ServiceLayer.User
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
         }
-
-
-        public async Task<IResult> Create(UserDto userDto)
+        
+        public async Task<IResult> Create(UserCreateRequestDto userCreateRequestDto)
         {
             var isUserNameExist =
-                await _userRepository.AnyAsync(x => x.Name == userDto.Name);
+                await _userRepository.AnyAsync(x => x.Name == userCreateRequestDto.Name);
             if (isUserNameExist) return new ErrorResult("User name already exist");
 
             var userWillBeAdded = new Domain.User
             {
-                Name = userDto.Name,
+                Name = userCreateRequestDto.Name,
                 Status = true
             };
             await _userRepository.AddAsync(userWillBeAdded);
@@ -46,21 +50,37 @@ namespace GenericRepository.ServiceLayer.User
             return new SuccessResult("User deleted");
         }
 
-        public async Task<IDataResult<UserDto>> GetUserById(int id)
+        public async Task<IDataResult<UserResponseDto>> GetUserById(int id)
         {
             var user = await _userRepository.GetSelectableAsync(x => x.Id == id,
-                x => new UserDto { Id = x.Id, Name = x.Name });
+                x => new UserResponseDto { Id = x.Id, Name = x.Name });
             if (user is null)
-                return new NotFoundDataResult<UserDto>("User not found");
+                return new NotFoundDataResult<UserResponseDto>("User not found");
 
-            return new SuccessDataResult<UserDto>(user);
+            return new SuccessDataResult<UserResponseDto>(user);
         }
 
-        public async Task<IDataResult<IEnumerable<UserDto>>> GetUsers()
+        public async Task<IDataResult<IEnumerable<UserResponseDto>>> GetUsers()
         {
             var userList = await _userRepository
-                .GetSelectableListAsync(x => new UserDto { Id = x.Id, Name = x.Name }, x => x.Status);
-            return new SuccessDataResult<IEnumerable<UserDto>>(userList);
+                .GetSelectableListAsync(x => new UserResponseDto { Id = x.Id, Name = x.Name }, x => x.Status);
+            return new SuccessDataResult<IEnumerable<UserResponseDto>>(userList);
+        }
+
+        public async Task<IDataResult<IEnumerable<UserResponseDto>>> GetUsersFilter(UserFilterRequestDto userFilterRequestDto)
+        {
+            var predicate = PredicateExtension.True<Domain.User>();
+            if (!string.IsNullOrEmpty(userFilterRequestDto.Name))
+            {
+                predicate = predicate.And(x => x.Name.Contains(userFilterRequestDto.Name));
+            }
+            
+            predicate = predicate.Or(x => x.Status == userFilterRequestDto.Status);
+
+            var result = await _userRepository.GetSelectableListAsync( x=> new UserResponseDto { Id = x.Id ,Name = x.Name} , predicate);
+
+            return new SuccessDataResult<IEnumerable<UserResponseDto>>(result);
+
         }
     }
 }

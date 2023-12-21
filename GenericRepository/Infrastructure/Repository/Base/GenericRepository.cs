@@ -90,7 +90,8 @@ namespace GenericRepository.Infrastructure.Repository.Base
             return await query.ToListAsync();
         }
 
-        public virtual async Task<IEnumerable<TType>> GetSelectableListAsync<TType>(Expression<Func<TEntity, TType>> select,
+        public virtual async Task<IEnumerable<TType>> GetSelectableListAsync<TType>(
+            Expression<Func<TEntity, TType>> select,
             Expression<Func<TEntity, bool>> predicate = null, bool isTracking = false) where TType : class, IDto, new()
         {
             var query = isTracking ? _dbSetTable : _dbSetTable.AsNoTracking();
