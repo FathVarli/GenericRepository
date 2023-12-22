@@ -1,4 +1,6 @@
 using GenericRepository.AppSettings;
+using GenericRepository.Helper.Mapper;
+using GenericRepository.Helper.Mapper.Mapster;
 using GenericRepository.Infrastructure.Context;
 using GenericRepository.Infrastructure.Repository.Abstract;
 using GenericRepository.Infrastructure.Repository.Base;
@@ -45,6 +47,7 @@ namespace GenericRepository
             services.AddTransient(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IMapperAdapter, MapsterAdapter>();
             services.AddTransient<IUserService, UserService>();
         }
 

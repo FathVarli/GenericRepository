@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GenericRepository.Dto;
 using GenericRepository.Dto.User.Request;
 using GenericRepository.Dto.User.Response;
 using GenericRepository.Helper.Extensions;
+using GenericRepository.Helper.Mapper;
 using GenericRepository.Helper.Results.Base;
 using GenericRepository.Helper.Results.DataResults;
 using GenericRepository.Helper.Results.Results;
 using GenericRepository.Infrastructure.Repository.Abstract;
 using GenericRepository.Infrastructure.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
 
 namespace GenericRepository.ServiceLayer.User
 {
@@ -18,11 +21,13 @@ namespace GenericRepository.ServiceLayer.User
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _userRepository;
+        private readonly IMapperAdapter _mapper;
 
-        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IMapperAdapter mapper)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
         
         public async Task<IResult> Create(UserCreateRequestDto userCreateRequestDto)
@@ -41,6 +46,19 @@ namespace GenericRepository.ServiceLayer.User
             return new SuccessResult("User created");
         }
 
+        public async Task<IResult> Update(UserUpdateRequestDto userUpdateRequestDto)
+        {
+            var isUserExist = await _userRepository.GetByIdAsync(userUpdateRequestDto.Id);
+            if (isUserExist is null) return new NotFoundResult("User not found");
+
+            var userWillBeUpdated = _mapper.Map(userUpdateRequestDto, isUserExist);
+            _userRepository.Update(userWillBeUpdated);
+            await _unitOfWork.CompleteAsync();
+
+            return new SuccessResult("User updated");
+            
+        }
+
         public async Task<IResult> Delete(int id)
         {
             var deletedUser = await _userRepository.GetByIdAsync(id);
@@ -50,20 +68,21 @@ namespace GenericRepository.ServiceLayer.User
             return new SuccessResult("User deleted");
         }
 
-        public async Task<IDataResult<UserResponseDto>> GetUserById(int id)
+        public async Task<IDataResult<UserResponseDto>> GetUserById(UserGetRequestDto userGetRequestDto)
         {
-            var user = await _userRepository.GetSelectableAsync(x => x.Id == id,
-                x => new UserResponseDto { Id = x.Id, Name = x.Name });
+
+            var userRepository = _unitOfWork.GetRepository<Domain.User, int>();
+            var user = await userRepository.GetAsync(userGetRequestDto.ToQuery<Domain.User , UserGetRequestDto>());
+            var mappedUser = _mapper.Map<UserResponseDto>(user);
             if (user is null)
                 return new NotFoundDataResult<UserResponseDto>("User not found");
 
-            return new SuccessDataResult<UserResponseDto>(user);
+            return new SuccessDataResult<UserResponseDto>(mappedUser);
         }
 
         public async Task<IDataResult<IEnumerable<UserResponseDto>>> GetUsers()
         {
-            var userList = await _userRepository
-                .GetSelectableListAsync(x => new UserResponseDto { Id = x.Id, Name = x.Name }, x => x.Status);
+            var userList = await _mapper.ProjectTo<Domain.User, UserResponseDto>(_userRepository.Query().Where(x => x.Id > 1)).ToListAsync();
             return new SuccessDataResult<IEnumerable<UserResponseDto>>(userList);
         }
 
@@ -74,8 +93,8 @@ namespace GenericRepository.ServiceLayer.User
             {
                 predicate = predicate.And(x => x.Name.Contains(userFilterRequestDto.Name));
             }
-            
-            predicate = predicate.Or(x => x.Status == userFilterRequestDto.Status);
+
+            predicate = predicate.And(x => x.Id > 1);
 
             var result = await _userRepository.GetSelectableListAsync( x=> new UserResponseDto { Id = x.Id ,Name = x.Name} , predicate);
 

@@ -124,5 +124,10 @@ namespace GenericRepository.Infrastructure.Repository.Base
         {
             return _dbSetTable.Any(predicate);
         }
+
+        public IQueryable<TEntity> Query()
+        {
+            return _dbSetTable.AsQueryable();
+        }
     }
 }

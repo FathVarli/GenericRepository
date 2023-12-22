@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GenericRepository.Domain.Abstract;
@@ -33,5 +34,6 @@ namespace GenericRepository.Infrastructure.Repository.Base
         Task<int> GetCount(Expression<Func<TEntity, bool>> predicate = null);
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
         bool Any(Expression<Func<TEntity, bool>> predicate);
+        IQueryable<TEntity> Query();
     }
 }

@@ -21,9 +21,9 @@ namespace GenericRepository.Controllers
 
         [HttpGet]
         [Route("user")]
-        public async Task<IActionResult> Get([FromQuery] int id)
+        public async Task<IActionResult> Get([FromQuery] UserGetRequestDto userGetRequestDto)
         {
-            var result = await _userService.GetUserById(id);
+            var result = await _userService.GetUserById(userGetRequestDto);
             if (result.Status != StatusTypeEnum.Success) return BadRequest(result.Message);
             return Ok(result.Data);
         }
@@ -51,6 +51,15 @@ namespace GenericRepository.Controllers
             var result = await _userService.Create(userCreateRequestDto);
             return Ok(result);
         }
+        
+        [HttpPut]
+        [Route("user")]
+        public async Task<IActionResult> Update([FromBody] UserUpdateRequestDto userUpdateRequestDto)
+        {
+            var result = await _userService.Update(userUpdateRequestDto);
+            return Ok(result);
+        }
+
 
         [HttpDelete]
         [Route("user")]

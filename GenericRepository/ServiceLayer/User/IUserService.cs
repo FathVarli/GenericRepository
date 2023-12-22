@@ -10,8 +10,9 @@ namespace GenericRepository.ServiceLayer.User
     public interface IUserService
     {
         Task<IResult> Create(UserCreateRequestDto userCreateRequestDto);
+        Task<IResult> Update(UserUpdateRequestDto userUpdateRequestDto);
         Task<IResult> Delete(int id);
-        Task<IDataResult<UserResponseDto>> GetUserById(int id);
+        Task<IDataResult<UserResponseDto>> GetUserById(UserGetRequestDto userGetRequestDto);
         Task<IDataResult<IEnumerable<UserResponseDto>>> GetUsers();
         Task<IDataResult<IEnumerable<UserResponseDto>>> GetUsersFilter(UserFilterRequestDto userFilterRequestDto);
     }
