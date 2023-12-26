@@ -5,9 +5,9 @@ using GenericRepository.Infrastructure.Repository.Base;
 
 namespace GenericRepository.Infrastructure.Repository.Concrete
 {
-    public class UserRepository : GenericRepository<User, int>, IUserRepository
+    public class AppUserRepository : GenericRepository<AppUser, int>, IAppUserRepository
     {
-        public UserRepository(ProjectDbContext context) : base(context)
+        public AppUserRepository(ProjectDbContext context) : base(context)
         {
         }
     }

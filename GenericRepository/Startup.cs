@@ -1,4 +1,5 @@
 using GenericRepository.AppSettings;
+using GenericRepository.Domain;
 using GenericRepository.Helper.Mapper;
 using GenericRepository.Helper.Mapper.Mapster;
 using GenericRepository.Infrastructure.Context;
@@ -6,9 +7,11 @@ using GenericRepository.Infrastructure.Repository.Abstract;
 using GenericRepository.Infrastructure.Repository.Base;
 using GenericRepository.Infrastructure.Repository.Concrete;
 using GenericRepository.Infrastructure.UnitOfWork;
+using GenericRepository.ServiceLayer.Authentication;
 using GenericRepository.ServiceLayer.User;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -44,9 +47,22 @@ namespace GenericRepository
             #endregion
 
             services.AddDbContext<ProjectDbContext>();
+            services
+                .AddIdentity<AppUser, AppRole>(opt =>
+                    {
+                        opt.Password.RequiredLength = 5; //En az kaç karakterli olması gerektiğini belirtiyoruz.
+                        opt.Password.RequireNonAlphanumeric = false; //Alfanumerik zorunluluğunu kaldırıyoruz.
+                        opt.Password.RequireLowercase = false; //Küçük harf zorunluluğunu kaldırıyoruz.
+                        opt.Password.RequireUppercase = false; //Büyük harf zorunluluğunu kaldırıyoruz.
+                        opt.Password.RequireDigit = false;
+                    }
+                )
+                .AddUserManager<CustomUserManager<AppUser>>()
+                .AddEntityFrameworkStores<ProjectDbContext>()
+                .AddDefaultTokenProviders();
             services.AddTransient(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
-            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IAppUserRepository, AppUserRepository>();
             services.AddTransient<IMapperAdapter, MapsterAdapter>();
             services.AddTransient<IUserService, UserService>();
         }

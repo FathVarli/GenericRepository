@@ -7,9 +7,9 @@ namespace GenericRepository.Helper.Extensions
 {
     public static class FilterExtension
     {
-        public static Expression<Func<TEntity, bool>> ToQuery<TEntity, TDto>(this TDto dto) 
-            where TEntity : class , IEntity , new() 
-            where TDto : class , IDto , new() 
+        public static Expression<Func<TEntity, bool>> ToQuery<TEntity, TDto>(this TDto dto)
+            where TEntity : class, IEntity, new()
+            where TDto : class, IDto, new()
         {
             return GetFilledPropertiesFilter<TEntity, TDto>(dto);
         }

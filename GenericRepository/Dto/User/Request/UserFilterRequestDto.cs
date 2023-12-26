@@ -4,13 +4,13 @@ namespace GenericRepository.Dto.User.Request
 {
     public class UserFilterRequestDto : IDto
     {
-        public string Name { get; set; }
-        public bool Status { get; set; }
-        
+        public string UserName { get; set; }
+        public string Email { get; set; }
+
         public override string ToString()
         {
             var queryString =
-                $"?Name={Name}&Status={Status}";
+                $"?UserName={UserName}&Email={Email}";
             return queryString;
         }
     }

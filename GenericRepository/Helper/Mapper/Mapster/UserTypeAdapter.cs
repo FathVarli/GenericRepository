@@ -1,8 +1,6 @@
 ﻿namespace GenericRepository.Helper.Mapper.Mapster
 {
-    public class UserTypeAdapter 
+    public class UserTypeAdapter
     {
-     
     }
 }
-

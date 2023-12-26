@@ -27,4 +27,3 @@ namespace GenericRepository.Helper.Mapper.Mapster
         }
     }
 }
-

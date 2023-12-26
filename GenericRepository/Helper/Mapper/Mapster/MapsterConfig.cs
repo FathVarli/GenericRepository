@@ -6,8 +6,6 @@
         {
             // İlk tip için TypeAdapter tanımı
             new UserTypeAdapter();
-        
         }
     }
 }
-

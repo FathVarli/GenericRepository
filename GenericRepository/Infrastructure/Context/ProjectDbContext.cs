@@ -1,11 +1,12 @@
 using GenericRepository.AppSettings;
 using GenericRepository.Domain;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace GenericRepository.Infrastructure.Context
 {
-    public class ProjectDbContext : DbContext
+    public class ProjectDbContext : IdentityDbContext<AppUser, AppRole, int>
     {
         private readonly AppSetting _appSetting;
 
@@ -13,8 +14,6 @@ namespace GenericRepository.Infrastructure.Context
         {
             _appSetting = appSetting;
         }
-
-        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
